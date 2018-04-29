@@ -7,6 +7,7 @@ __all__ = (
     'Point',
 )
 
+
 class Point:
     def _validate(self, value):
         if type(value) is int or type(value) is float:
@@ -57,6 +58,7 @@ class TestPoint(unittest.TestCase):
 
         self.assertEqual(x._validate(10), 10)
         self.assertEqual(y._validate(10.7), 10.7)
+
         with self.assertRaises(TypeError):
             x._validate("str")
 
