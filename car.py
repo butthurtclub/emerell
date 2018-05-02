@@ -1,11 +1,26 @@
 __author__ = 'emerell'
 
 import unittest
-from point import *
+from point import Point
 
 __all__ = (
-    'Car',
+    'Car', 'OutOfFuelError'
 )
+
+
+class FuelError(Exception):
+    """Basic exception for errors in this module"""
+    pass
+
+
+class OutOfFuelError(FuelError):
+    """When fuel amount is equal to 0"""
+    pass
+
+
+class TooMuchFuelError(FuelError):
+    """Fuel capacity is already full"""
+    pass
 
 
 class Car:
@@ -19,28 +34,17 @@ class Car:
     def __str__(self):
         return f'{self._model}: fuel amount | location: {self._fuel_amount} | {self._location}'
 
-    def __repr__(self):
-        return f'{self._model}: fuel amount {self._fuel_amount}, location {self._location}.'
-
     def drive(self, destination):
         local_distance = self._location.distance(destination)
         fuel_needed = local_distance * self._fuel_consumption
 
         if fuel_needed > self._fuel_amount:
-            raise Exception('Out of fuel!')
+            raise OutOfFuelError('Out of fuel!')
 
         self._fuel_amount -= fuel_needed
         self._location = destination
 
-        return f'Car {self._model} travelled: {local_distance} miles. {self.fuel_amount} fuel left.'
-
-    def refill(self, fuel):
-        if fuel > self._fuel_capacity:
-            raise Exception('Too much fuel!')
-
-        self._fuel_amount = fuel
-
-        return f'Car {self._model} refilled. {self._fuel_amount} fuel left.'
+        print(f'Car {self._model} travelled: {local_distance} miles. {self.fuel_amount} fuel left.')
 
     @property
     def fuel_amount(self):
@@ -62,6 +66,15 @@ class Car:
     def model(self):
         return self._model
 
+    @fuel_amount.setter
+    def fuel_amount(self, fuel):
+        if fuel > self._fuel_capacity:
+            raise TooMuchFuelError('Too much fuel!')
+
+        self._fuel_amount = fuel
+
+        print(f'Car {self._model} refilled. {self._fuel_amount} fuel left.')
+
 
 class TestCar(unittest.TestCase):
     def test_init(self):
@@ -72,36 +85,35 @@ class TestCar(unittest.TestCase):
         self.assertEqual(car.fuel_capacity, 50.0)
         self.assertEqual(car.fuel_amount, 0)
 
-    def test_refill(self):
+    def test_fuel_amount(self):
         mercedes = Car()
         bmw = Car(50.0, 0.6, Point(2, 4), "BMW")
         bad_car = Car(20.0, 0.5, Point(1, 4))
-        self.assertEqual(mercedes.refill(40.0), 'Car Mercedes refilled. 40.0 fuel left.')
-        self.assertEqual(bmw.refill(10), 'Car BMW refilled. 10 fuel left.')
+        mercedes.fuel_amount = 40.0
+        self.assertEqual(mercedes.fuel_amount, 40.0)
+        bmw.fuel_amount = 10
+        self.assertEqual(bmw.fuel_amount, 10)
 
-        with self.assertRaises(Exception):
-            bad_car.refill(30.0)
+        with self.assertRaises(TooMuchFuelError):
+            bad_car.fuel_amount = 30
 
     def test_drive(self):
         mercedes = Car()
         bmw = Car(50.0, 0.6, Point(0, 3), "BMW")
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(OutOfFuelError):
             mercedes.drive(Point(0, 2))
             bmw.drive(Point(3, 4))
 
-        mercedes.refill(50)
-        self.assertEqual(mercedes.drive(Point(0, 1)), 'Car Mercedes travelled: 1.0 miles. 49.4 fuel left.')
+        mercedes.fuel_amount = 50
+        self.assertEqual(mercedes.drive(Point(0, 1)), None)
 
     def test_presentation(self):
         mercedes = Car()
         bmw = Car(50.0, 0.6, Point(2, 4), "BMW")
 
         self.assertEqual(str(mercedes), 'Mercedes: fuel amount | location: 0 | (0, 0)')
-        self.assertEqual(repr(mercedes), 'Mercedes: fuel amount 0, location (0, 0).')
-
         self.assertEqual(str(bmw), 'BMW: fuel amount | location: 0 | (2, 4)')
-        self.assertEqual(repr(bmw), 'BMW: fuel amount 0, location (2, 4).')
 
 
 if __name__ == '__main__':
