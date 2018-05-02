@@ -4,12 +4,12 @@ import unittest
 from point import Point
 
 __all__ = (
-    'Car', 'OutOfFuelError'
+    'Car',
 )
 
 
 class FuelError(Exception):
-    """Basic exception for errors in this module"""
+    """Basic exception for errors in car module"""
     pass
 
 
@@ -24,7 +24,48 @@ class TooMuchFuelError(FuelError):
 
 
 class Car:
+    """
+    A class for car representing.
+    The car has the following properties: fuel capacity, amount of fuel, fuel consumption, location and model.
+
+    The location is defined as a point on the coordinate plane. (Use module point)
+    The car can drive to another point, but the car will not go if it haven't enough fuel to drive.
+    The car can be fueled if it has necessary capacity.
+
+    Usage:
+    >>> car = Car()
+    >>>  print(car)
+    Mercedes: fuel amount | location: 0 | (0.0, 0.0)
+    >>> car.fuel_capacity
+    60.0
+    >>> car.fuel_consumption
+    0.6
+    >>> car2 = Car(50.0, 0.6, Point(2, 4), "BMW")
+    >>>car2.model
+    'BMW'
+    >>>car.fuel_amount = 50
+    Car BMW refilled. 50 fuel left.
+    >>>car2.drive(x=3, y =4)
+    Car BMW travelled: 1.0 miles. 49.4 fuel left.
+    >>>car.fuel_amount = 70
+     Car Mercedes refilled. 70 fuel left.
+    >>>car.drive(Point(0, 1))
+    Car Mercedes travelled: 1.0 miles. 49.4 fuel left.
+    """
+
     def __init__(self, capacity=60.0, consumption=0.6, location=Point(0, 0), model='Mercedes'):
+        """
+        The initializer.
+
+        :param capacity: fuel capacity. Possible values: integer, float.
+        :type capacity: float
+        :param consumption: fuel consumption. Possible values: integer, float.
+        :type consumption: float
+        :param location: location on coordinate plane. Possible values: Point(x, y).
+        :type location: Point
+        :param model: model of the car. Possible values: string.
+        :type model: string
+        """
         self._fuel_capacity = capacity
         self._fuel_amount = 0
         self._location = location
@@ -34,7 +75,20 @@ class Car:
     def __str__(self):
         return f'{self._model}: fuel amount | location: {self._fuel_amount} | {self._location}'
 
-    def drive(self, destination):
+    def drive(self, destination=None, **kwargs):
+        """
+        Car drives to point.
+
+        :param destination: location to move.
+        :type destination: Point.
+        :param kwargs: use if you want to specify coordinates like this: car.drive(x=3, y =4).
+
+        print local distance of the car and its fuel amount.
+        :raise OutOfFuelError: If the car is out of fuel.
+        """
+
+        destination = destination or Point(**kwargs)
+
         local_distance = self._location.distance(destination)
         fuel_needed = local_distance * self._fuel_consumption
 
@@ -68,6 +122,16 @@ class Car:
 
     @fuel_amount.setter
     def fuel_amount(self, fuel):
+        """
+        Car can be fueled here
+
+        :param fuel: fuel you want to refill with
+        :type fuel: float
+
+        print car and its fuel amount
+        :raise TooMuchFuelError: If the car tank is full
+        """
+
         if fuel > self._fuel_capacity:
             raise TooMuchFuelError('Too much fuel!')
 
@@ -107,14 +171,16 @@ class TestCar(unittest.TestCase):
 
         mercedes.fuel_amount = 50
         self.assertEqual(mercedes.drive(Point(0, 1)), None)
+        self.assertEqual(mercedes.drive(x=1, y=1), None)
 
     def test_presentation(self):
         mercedes = Car()
         bmw = Car(50.0, 0.6, Point(2, 4), "BMW")
 
-        self.assertEqual(str(mercedes), 'Mercedes: fuel amount | location: 0 | (0, 0)')
-        self.assertEqual(str(bmw), 'BMW: fuel amount | location: 0 | (2, 4)')
+        self.assertEqual(str(mercedes), 'Mercedes: fuel amount | location: 0 | (0.0, 0.0)')
+        self.assertEqual(str(bmw), 'BMW: fuel amount | location: 0 | (2.0, 4.0)')
 
 
 if __name__ == '__main__':
     unittest.main()
+

@@ -9,10 +9,42 @@ __all__ = (
 
 
 class Point:
+    """
+    A class for representing point with x, y coordinates.
+    Supported types: integer, floating.
+
+    Usage:
+    >>> point = Point(3, 4.2)
+    >>> point.x
+    3.0
+    >>> point.y
+    4.2
+    >>> point.y = 0
+    >>> point2 = Point(0, 4)
+    >>> point == point2
+    False
+    >>> point != point2
+    True
+     >>> print(point)
+    (3.0, 0.0)
+            >>> print(point2)
+    (0.0, 4.0)
+    >>> point.distance(point2)
+    5.0
+    """
+
     def _validate(self, value):
         return float(value)
 
     def __init__(self, x=0.0, y=0.0):
+        """
+        The initializer.
+
+        :param x: x-coordinate. Possible values: integer, float.
+        :type x: float
+        :param y: y-coordinate. Possible values: integer, float.
+        :type y: float
+        """
         self._x = self._validate(x)
         self._y = self._validate(y)
 
@@ -26,6 +58,7 @@ class Point:
         return not self == other
 
     def distance(self, other):
+        """Return the length of the vector from this point to other."""
         return hypot(other.x - self.x, other.y - self.y)
 
     @property
