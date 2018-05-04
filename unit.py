@@ -83,8 +83,8 @@ class Unit:
 
         if dmg > self._hit_points:
             raise UnitIsDeadError("Unit is dead")
-        else:
-            self._hit_points -= dmg
+
+        self._hit_points -= dmg
 
     def attack(self, enemy):
         """
@@ -149,8 +149,8 @@ class Unit:
 
         if new_hit_points > self._hit_points_limit:
             self._hit_points = self._hit_points_limit
-        else:
-            self._hit_points = new_hit_points
+
+        self._hit_points = new_hit_points
 
 
 class TestUnit(unittest.TestCase):
@@ -186,11 +186,11 @@ class TestUnit(unittest.TestCase):
 
         self.assertEqual(knight.hit_points, 180)
         knight.hit_points = 10
-        self.assertEqual(knight.hit_points, 180)
+        self.assertEqual(knight.hit_points, 190)
 
         knight.take_damage(50)
         knight.hit_points = 30
-        self.assertEqual(knight.hit_points, 160)
+        self.assertEqual(knight.hit_points, 170)
 
     def test_take_damage(self):
         barbarian = Unit("Barbarian", 0, 20)
